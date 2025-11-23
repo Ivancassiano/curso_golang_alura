@@ -20,7 +20,7 @@ func BuscaTodosOsProdutos() []Produto {
 	}
 
 	p := Produto{}
-	produtos := []Produto{}
+	var produtos []Produto
 	for selectDeTodosOsProdutos.Next() {
 		var id, quantidade int
 		var nome, descricao string
