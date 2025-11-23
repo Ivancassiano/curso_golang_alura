@@ -7,6 +7,14 @@ import (
 	"net/http"
 )
 
+type Produto struct {
+	Nome, Descricao string
+	Preco           float64
+	Id, Quantidade  int
+}
+
+var temp = template.Must(template.ParseGlob("templates/*.html"))
+
 func conectaComBancoDeDados() *sql.DB {
 	conexao := "user=cassiano dbname=alura_loja password=cassiano host=localhost port=5432 sslmode=disable"
 	db, err := sql.Open("postgres", conexao)
@@ -17,20 +25,7 @@ func conectaComBancoDeDados() *sql.DB {
 	return db
 }
 
-type Produto struct {
-	Nome, Descricao string
-	Preco           float64
-	Id, Quantidade  int
-}
-
-var temp = template.Must(template.ParseGlob("templates/*.html"))
-
-func main() {
-	http.HandleFunc("/", index)
-	http.ListenAndServe(":8000", nil)
-}
-
-func index(w http.ResponseWriter, r *http.Request) {
+func index(w http.ResponseWriter, _ *http.Request) {
 	db := conectaComBancoDeDados()
 
 	selectDeTodosOsProdutos, err := db.Query("SELECT * FROM produtos")
@@ -59,7 +54,17 @@ func index(w http.ResponseWriter, r *http.Request) {
 		produtos = append(produtos, p)
 	}
 
-	defer db.Close()
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
 
-	temp.ExecuteTemplate(w, "Index", produtos)
+		}
+	}(db)
+
+	_ = temp.ExecuteTemplate(w, "Index", produtos)
+}
+
+func main() {
+	http.HandleFunc("/", index)
+	_ = http.ListenAndServe(":8000", nil)
 }
