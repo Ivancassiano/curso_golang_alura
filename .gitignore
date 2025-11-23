@@ -6,5 +6,6 @@
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
-.idea/curso_golang_alura.iml
 .idea
+.idea/curso_golang_alura.iml
+.idea/.gitignore
