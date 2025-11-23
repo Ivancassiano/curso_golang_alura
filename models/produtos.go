@@ -12,9 +12,9 @@ type Produto struct {
 }
 
 func BuscaTodosOsProdutos() []Produto {
-	db := db.ConectaComBancoDeDados()
+	dbPostgres := db.ConectaComBancoDeDados()
 
-	selectDeTodosOsProdutos, err := db.Query("SELECT * FROM produtos")
+	selectDeTodosOsProdutos, err := dbPostgres.Query("SELECT * FROM produtos")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -45,45 +45,51 @@ func BuscaTodosOsProdutos() []Produto {
 		if err != nil {
 
 		}
-	}(db)
+	}(dbPostgres)
 
 	return produtos
 }
 
 func CriarNovoproduto(nome, descricao string, preco float64, quantidade int) {
-	db := db.ConectaComBancoDeDados()
+	dbPostgres := db.ConectaComBancoDeDados()
 
-	insereDadosNoBanco, err := db.Prepare("INSERT INTO produtos (nome, descricao, preco, quantidade) VALUES ($1, $2, $3, $4)")
+	insereDadosNoBanco, err := dbPostgres.Prepare("INSERT INTO produtos (nome, descricao, preco, quantidade) VALUES ($1, $2, $3, $4)")
 
 	if err != nil {
 		panic(err.Error())
 	}
 
-	insereDadosNoBanco.Exec(nome, descricao, preco, quantidade)
+	_, err = insereDadosNoBanco.Exec(nome, descricao, preco, quantidade)
+	if err != nil {
+		return
+	}
 
 	defer func(db *sql.DB) {
 		err := db.Close()
 		if err != nil {
 
 		}
-	}(db)
+	}(dbPostgres)
 }
 
 func DeletaProduto(id string) {
-	db := db.ConectaComBancoDeDados()
+	dbPostgres := db.ConectaComBancoDeDados()
 
-	deletarProduto, err := db.Prepare("DELETE FROM produtos WHERE id = $1")
+	deletarProduto, err := dbPostgres.Prepare("DELETE FROM produtos WHERE id = $1")
 
 	if err != nil {
 		panic(err.Error())
 	}
 
-	deletarProduto.Exec(id)
+	_, err = deletarProduto.Exec(id)
+	if err != nil {
+		return
+	}
 
 	defer func(db *sql.DB) {
 		err := db.Close()
 		if err != nil {
 
 		}
-	}(db)
+	}(dbPostgres)
 }
