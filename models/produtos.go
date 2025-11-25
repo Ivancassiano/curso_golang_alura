@@ -14,7 +14,7 @@ type Produto struct {
 func BuscaTodosOsProdutos() []Produto {
 	dbPostgres := db.ConectaComBancoDeDados()
 
-	selectDeTodosOsProdutos, err := dbPostgres.Query("SELECT * FROM produtos")
+	selectDeTodosOsProdutos, err := dbPostgres.Query("SELECT * FROM produtos ORDER BY ID ASC")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -67,7 +67,7 @@ func CriarNovoproduto(nome, descricao string, preco float64, quantidade int) {
 	defer func(db *sql.DB) {
 		err := db.Close()
 		if err != nil {
-
+			panic(err.Error())
 		}
 	}(dbPostgres)
 }
@@ -89,7 +89,64 @@ func DeletaProduto(id string) {
 	defer func(db *sql.DB) {
 		err := db.Close()
 		if err != nil {
+			panic(err.Error())
+		}
+	}(dbPostgres)
+}
 
+func EditaProduto(id string) Produto {
+	dbPostgres := db.ConectaComBancoDeDados()
+
+	produtoDoBanco, err := dbPostgres.Query("SELECT * FROM produtos WHERE id = $1", id)
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	produtoParaAtualizar := Produto{}
+
+	for produtoDoBanco.Next() {
+		var id, quantidade int
+		var nome, descricao string
+		var preco float64
+
+		err = produtoDoBanco.Scan(&id, &nome, &descricao, &preco, &quantidade)
+		if err != nil {
+			panic(err.Error())
+		}
+
+		produtoParaAtualizar.Nome = nome
+		produtoParaAtualizar.Descricao = descricao
+		produtoParaAtualizar.Preco = preco
+		produtoParaAtualizar.Quantidade = quantidade
+		produtoParaAtualizar.Id = id
+
+	}
+
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			panic(err.Error())
+		}
+	}(dbPostgres)
+	return produtoParaAtualizar
+}
+
+func AtualizaProduto(id int, nome, descricao string, preco float64, quantidade int) {
+	dbPostgres := db.ConectaComBancoDeDados()
+	atualizaProduto, err := dbPostgres.Prepare("UPDATE produtos SET nome = $1, descricao = $2, preco = $3, quantidade = $4 WHERE id = $5")
+	if err != nil {
+		panic(err.Error())
+	}
+	_, err = atualizaProduto.Exec(nome, descricao, preco, quantidade, id)
+	if err != nil {
+		return
+	}
+
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			panic(err.Error())
 		}
 	}(dbPostgres)
 }

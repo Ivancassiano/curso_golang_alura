@@ -1,23 +1,11 @@
 {{define "Index"}}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+<html lang="pt-br">
+{{template "_head"}}
 
-    <link rel="stylesheet"
-          href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-          crossorigin="anonymous">
 
-    <title>Alura loja</title>
-</head>
+
 <body>
-<nav class="navbar navbar-light bg-light mb-4">
-    <a class="navbar-brand" href="/">Alura Loja</a>
-</nav>
-
+{{template "_menu"}}
 <div class="container">
     <section class="card">
         <div>
@@ -37,6 +25,7 @@
                     <td>{{.Descricao}}</td>
                     <td>{{.Preco}}</td>
                     <td>{{.Quantidade}}</td>
+                    <td><a href="edit?id={{.Id}}" class="btn btn-info">Editar</a></td>
                     <td><button onclick="onDelete('{{.Id}}')" class="btn btn-danger">Deletar</button></td>
                 </tr>
                 {{end}}
